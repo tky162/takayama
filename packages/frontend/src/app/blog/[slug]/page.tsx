@@ -8,7 +8,7 @@ import { getPost, getPostSlugs } from "@/lib/posts";
 import { CommentsSection } from "./comments-section";
 
 type PageProps = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 export const dynamic = "force-dynamic";
@@ -19,7 +19,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const post = await getPost(params.slug);
+  const resolved = await params;
+  const post = await getPost(resolved.slug);
 
   if (!post) {
     return {
@@ -35,7 +36,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function BlogPost({ params }: PageProps) {
-  const post = await getPost(params.slug);
+  const resolved = await params;
+  const post = await getPost(resolved.slug);
 
   if (!post) {
     notFound();
