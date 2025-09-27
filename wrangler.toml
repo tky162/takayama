@@ -1,0 +1,17 @@
+name = "takayama-api"
+main = "packages/api/src/index.ts"
+compatibility_date = "2024-09-27"
+account_id = "512387a50678415712a91baa79f7a162"
+
+[observability]
+  enabled = true
+
+[[d1_databases]]
+  binding = "COMMENTS_DB"
+  database_name = "takayama-db"
+  database_id = "3919895a-890f-4896-9541-ab507d98ca67"
+  migrations_dir = "packages/api/migrations"
+
+[[kv_namespaces]]
+  binding = "RATE_LIMITER"
+  id = "4e24b23043de4d79a0453480e3a6c134"
