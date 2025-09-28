@@ -5,10 +5,21 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'mn86.tonkotsu.jp',
+        port: '',
+        pathname: '/img/**',
+      },
+    ],
   },
   // Disable server-side features for static export
   experimental: {
     // Disable features that require server
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
 };
 

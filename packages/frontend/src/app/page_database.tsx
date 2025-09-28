@@ -1,34 +1,54 @@
 import Link from 'next/link'
-import Footer from '@/components/layout/Footer'
 import ArticleCard from '@/components/ui/ArticleCard'
-import SidebarStatic from '@/components/ui/Sidebar.static'
-import MobileSidebar from '@/components/ui/MobileSidebar'
-import { getLatestArticles, getPopularArticles } from '@/lib/articles-server'
+import SidebarServer from '@/components/ui/Sidebar.server'
+import {
+  getLatestArticles,
+  getPopularArticles,
+  getArticleStats,
+  convertToArticle,
+} from '@/lib/database/articles'
+import { getCategoryStats } from '@/lib/database/categories'
 
 export default async function Home() {
-  // 静的データを使用
-  const latestArticles = await getLatestArticles(3)
-  const popularArticles = await getPopularArticles(3)
+  // 必ずコンソールに表示されるログ
+  console.log('🚀 Home page loading started')
 
-  // 静的カテゴリ統計
-  const categories = [
-    { name: '風俗体験談', slug: 'fuzoku', count: 2 },
-    { name: 'FANZA動画レビュー', slug: 'fanza', count: 2 },
-    { name: 'FANZA_VRレビュー', slug: 'fanzavr', count: 1 },
-  ]
+  try {
+    const [latestArticlesData, popularArticlesData, stats, categories] =
+      await Promise.all([
+        getLatestArticles(3),
+        getPopularArticles(3),
+        getArticleStats(),
+        getCategoryStats(),
+      ])
 
-  // 静的統計
-  const stats = {
-    totalArticles: 5,
-    totalViews: 1250,
-    averageRating: 4.2,
-    totalCategories: 4,
-  }
+    // DatabaseArticle を Article 形式に変換
+    const latestArticles = latestArticlesData.map(convertToArticle)
+    const popularArticles = popularArticlesData.map(convertToArticle)
 
-  return (
-    <div className="flex flex-col min-h-screen">
-      <main className="flex-grow">
+    // 成功時のログを強制的にコンソールに表示
+    console.log('✅ Data loaded successfully:', {
+      latestCount: latestArticles.length,
+      popularCount: popularArticles.length,
+      stats,
+      categoriesCount: categories.length,
+    })
+
+    // クライアントサイドログ（ブラウザで確実に見える）
+    const clientLog = `✅ Data loaded: ${latestArticles.length} latest, ${popularArticles.length} popular, ${categories.length} categories`
+    console.log(clientLog)
+
+    return (
+      <div className="min-h-screen" style={{ background: 'var(--background)' }}>
         <div className="container mx-auto px-4 py-8">
+          {/* デバッグ情報 */}
+          <div className="text-center mb-4 p-4 bg-blue-100 text-blue-800 rounded">
+            <p>
+              Debug: {latestArticles.length} latest, {popularArticles.length}{' '}
+              popular, {categories.length} categories
+            </p>
+          </div>
+
           {/* ヒーロセクション */}
           <div className="text-center mb-12">
             <h1
@@ -43,50 +63,22 @@ export default async function Home() {
             >
               実体験に基づく信頼できる情報をお届けします
             </p>
+            <div
+              className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-8"
+              style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                color: 'var(--primary)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+              }}
+            >
+              ⚠️ 18歳未満の方は閲覧できません
+            </div>
           </div>
 
           {/* メイン2カラムレイアウト */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* メインコンテンツエリア（約70%幅） */}
             <div className="lg:col-span-3 space-y-12">
-              {/* 最新の記事 */}
-              {latestArticles.length > 0 && (
-                <div className="content-card-elevated">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2
-                      className="text-2xl font-bold"
-                      style={{ color: 'var(--text-primary)' }}
-                    >
-                      最新の記事
-                    </h2>
-                    <Link
-                      href="/articles"
-                      className="font-medium hover:underline"
-                      style={{ color: 'var(--primary)' }}
-                    >
-                      すべて見る →
-                    </Link>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {latestArticles.map((article, index) => (
-                      <ArticleCard
-                        key={article.id}
-                        title={article.title}
-                        excerpt={article.excerpt}
-                        category={article.category}
-                        publishedAt={article.publishedAt}
-                        readTime={article.readTime}
-                        viewCount={article.viewCount}
-                        thumbnail={article.thumbnail}
-                        href={`/article/${article.slug}`}
-                        isPremium={article.isPremium}
-                        priority={index === 0}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* 研究分野紹介 */}
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 <Link href="/category/fuzoku" className="research-card">
@@ -123,23 +115,58 @@ export default async function Home() {
                   </div>
                 </Link>
 
-                <Link href="/category/fanzavr" className="research-card">
-                  <div className="research-badge research mb-4">
-                    FANZA_VRレビュー
-                  </div>
-                  <h3 className="research-heading text-lg">VR作品分析</h3>
+                <Link href="/category/research" className="research-card">
+                  <div className="research-badge research mb-4">業界研究</div>
+                  <h3 className="research-heading text-lg">トレンド分析</h3>
                   <p className="research-text mb-4">
-                    FANZAのVR作品の詳細レビューと評価を研究員が分析します。
+                    業界の最新動向と市場分析を定期的にレポートします。
                   </p>
                   <div
                     className="text-sm"
                     style={{ color: 'var(--text-muted)' }}
                   >
-                    {categories.find(c => c.slug === 'fanzavr')?.count || 0}{' '}
+                    {categories.find(c => c.slug === 'research')?.count || 0}{' '}
                     件の研究報告
                   </div>
                 </Link>
               </div>
+
+              {/* 最新の研究成果 */}
+              {latestArticles.length > 0 && (
+                <div className="content-card-elevated">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2
+                      className="text-2xl font-bold"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      最新の研究成果
+                    </h2>
+                    <Link
+                      href="/articles"
+                      className="font-medium hover:underline"
+                      style={{ color: 'var(--primary)' }}
+                    >
+                      すべて見る →
+                    </Link>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {latestArticles.map(article => (
+                      <ArticleCard
+                        key={article.id}
+                        title={article.title}
+                        excerpt={article.excerpt}
+                        category={article.category}
+                        publishedAt={article.publishedAt}
+                        readTime={article.readTime}
+                        viewCount={article.viewCount}
+                        thumbnail={article.thumbnail}
+                        href={`/article/${article.slug}`}
+                        isPremium={article.isPremium}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* 人気の研究報告 */}
               {popularArticles.length > 0 && (
@@ -278,18 +305,52 @@ export default async function Home() {
             </div>
 
             {/* サイドバーエリア（約30%幅） */}
-            <div className="lg:col-span-1 hidden lg:block">
-              <SidebarStatic />
-            </div>
-            <div className="lg:hidden">
-              <MobileSidebar>
-                <SidebarStatic />
-              </MobileSidebar>
+            <div className="lg:col-span-1">
+              <SidebarServer />
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
-    </div>
-  )
+      </div>
+    )
+  } catch (error) {
+    console.error('データ読み込みエラー:', error)
+    console.error('エラー詳細:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? '設定済み' : '未設定',
+      supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        ? '設定済み'
+        : '未設定',
+    })
+
+    return (
+      <div className="min-h-screen" style={{ background: 'var(--background)' }}>
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h1
+            className="text-4xl font-bold mb-4"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            高山まさあきの夜遊び研究所
+          </h1>
+          <p
+            className="text-xl mb-8"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            システムを準備中です...
+          </p>
+          <div
+            className="text-sm p-4 rounded-lg mb-8"
+            style={{
+              background: 'rgba(251, 191, 36, 0.1)',
+              border: '1px solid rgba(251, 191, 36, 0.2)',
+            }}
+          >
+            <p style={{ color: '#f59e0b' }}>
+              データベースの設定を確認中です。しばらくお待ちください。
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 }

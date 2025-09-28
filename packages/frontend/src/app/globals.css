@@ -1,42 +1,240 @@
+@import 'tailwindcss';
+@import 'highlight.js/styles/github.css';
+
 :root {
+  /* ライトテーマ基調 */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0a0a0a;
+  --surface: #f5f5f5;
+  --surface-elevated: #eeeeee;
+  --border: #e5e5e5;
+  --border-light: #d4d4d4;
+
+  /* アクセントカラー */
+  --primary: #e11d48;
+  --primary-hover: #be185d;
+  --secondary: #8b5cf6;
+  --secondary-hover: #7c3aed;
+
+  /* テキストカラー */
+  --text-primary: #0a0a0a;
+  --text-secondary: #525252;
+  --text-muted: #737373;
+
+  /* カテゴリカラー */
+  --fuzoku: #ef4444;
+  --fanza: #8b5cf6;
+  --research: #3b82f6;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.dark {
+  /* ダークテーマ基調 */
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+  --surface: #1a1a1a;
+  --surface-elevated: #2a2a2a;
+  --border: #333333;
+  --border-light: #444444;
+
+  /* テキストカラー */
+  --text-primary: #f5f5f5;
+  --text-secondary: #a3a3a3;
+  --text-muted: #737373;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* カスタムアニメーション */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ダークテーマ対応の研究所スタイル */
+.research-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  @apply rounded-lg p-6 hover:shadow-xl transition-all duration-300;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+.research-card:hover {
+  background: var(--surface-elevated);
+  border-color: var(--border-light);
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+.research-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+.research-badge.fuzoku {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--fuzoku);
+}
+
+.research-badge.fanza {
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--fanza);
+}
+
+.research-badge.research {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--research);
+}
+
+.research-heading {
+  @apply text-2xl font-bold mb-4;
+  color: var(--text-primary);
+}
+
+.research-text {
+  @apply leading-relaxed;
+  color: var(--text-secondary);
+}
+
+/* カード型コンテンツ */
+.content-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  @apply rounded-lg p-6;
+}
+
+.content-card-elevated {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-light);
+  @apply rounded-lg p-8 shadow-lg;
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* レスポンシブユーティリティ */
+@media (max-width: 1024px) {
+  /* タブレット・モバイル対応 */
+  aside[style*='position: sticky'] {
+    position: static !important;
+    top: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .research-card {
+    padding: 1rem;
+  }
+
+  .content-card-elevated {
+    padding: 1.5rem;
+  }
+
+  /* モバイルでは1カラム表示 */
+  .lg\:grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lg\:col-span-3 {
+    grid-column: span 1 !important;
+  }
+
+  .lg\:col-span-1 {
+    grid-column: span 1 !important;
+  }
+}
+
+/* フォーカス状態 */
+*:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1);
+}
+
+/* スクロールバーのスタイリング */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* セレクション色 */
+::selection {
+  background: var(--primary);
+  color: white;
+}
+
+/* ローディング状態 */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* ホバーエフェクト改善 */
+@media (hover: hover) {
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(225, 29, 72, 0.3);
+    transition: box-shadow 0.3s ease;
   }
 }
