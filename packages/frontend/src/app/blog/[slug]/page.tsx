@@ -11,7 +11,8 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export const dynamic = "force-dynamic";
+// Commented out for static export
+// export const dynamic = "force-dynamic";
 
 export async function generateStaticParams() {
   const slugs = await getPostSlugs();
@@ -45,13 +46,14 @@ export default async function BlogPost({ params }: PageProps) {
 
   let initialComments: Awaited<ReturnType<typeof fetchComments>>["comments"] = [];
 
-  try {
-    if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+  // Skip API calls during static generation
+  if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_API_BASE_URL) {
+    try {
       const data = await fetchComments(post.slug);
       initialComments = data.comments;
+    } catch (error) {
+      console.warn("[comments] 初回取得に失敗しました", error);
     }
-  } catch (error) {
-    console.warn("[comments] 初回取得に失敗しました", error);
   }
 
   return (
