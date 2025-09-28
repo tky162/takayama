@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build:next": "next build",
-    "build": "open-next build --build-command \"pnpm build:next\"",
+    "build": "next build",
+    "build:cf": "open-next build",
     "start": "next start",
     "lint": "eslint ."
   },
