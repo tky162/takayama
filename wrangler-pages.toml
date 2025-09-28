@@ -1,6 +1,0 @@
-name = "takayama-frontend"
-compatibility_date = "2024-09-27"
-account_id = "512387a50678415712a91baa79f7a162"
-
-# Cloudflare Pages configuration
-pages_build_output_dir = "packages/frontend/.open-next"

@@ -1,0 +1,7 @@
+name = "takayama-frontend"
+compatibility_date = "2024-09-27"
+pages_build_output_dir = ".open-next"
+
+[compatibility_flags]
+nodejs_compat = true
+streams_enable_constructors = true
