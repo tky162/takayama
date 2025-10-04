@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/img/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'pub-64fb0bfdf1794163b59576eb362601e9.r2.dev',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
   // Disable server-side features for static export

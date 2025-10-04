@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { CalendarIcon, TagIcon } from '@heroicons/react/24/outline'
 import {
   getLatestArticles,
@@ -29,6 +30,27 @@ export default async function SidebarStatic({
 
   return (
     <div className={`space-y-8 ${className}`}>
+      {/* ブランドバナー */}
+      <Link
+        href="/"
+        className="block"
+        aria-label="高山まさあきの夜遊び研究所トップへ"
+      >
+        <div
+          className="content-card overflow-hidden p-0"
+          style={{ border: '1px solid var(--border-light)' }}
+        >
+          <Image
+            src="https://pub-64fb0bfdf1794163b59576eb362601e9.r2.dev/ogp.jp2"
+            alt="高山まさあきの夜遊び研究所"
+            width={800}
+            height={420}
+            className="w-full h-auto object-cover"
+            priority
+          />
+        </div>
+      </Link>
+
       {/* 検索ボックス */}
       <div className="content-card sticky top-4">
         <h3
