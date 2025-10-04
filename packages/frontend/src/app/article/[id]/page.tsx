@@ -37,6 +37,9 @@ export default async function ArticlePage({
 
   const article = dbArticle
   const tocHeadings = article.headings ?? []
+  const heroImage =
+    article.thumbnail ||
+    'https://pub-64fb0bfdf1794163b59576eb362601e9.r2.dev/ogp.jpg'
 
   // 関連記事を取得
   const relatedDbArticles = await getRelatedArticles(dbArticle, 3)
@@ -129,10 +132,10 @@ export default async function ArticlePage({
                   {article.title}
                 </h1>
 
-                {article.thumbnail && (
+                {heroImage && (
                   <div className="relative w-full h-96 mb-6 rounded-lg overflow-hidden">
                     <Image
-                      src={article.thumbnail}
+                      src={heroImage}
                       alt={article.title}
                       layout="fill"
                       objectFit="cover"
