@@ -1,7 +1,14 @@
 ---
 title: "Quest3でFANZA VRを見る手順（完全ガイド）"
-description: "Quest3でFANZA VRを見る手順（完全ガイド）"
-date: "2025-10-04"
+excerpt: "Quest3でFANZA VRを初めて体験する人でも迷わず準備から視聴まで進められるよう、必要な手順を徹底解説します。"
+category: "FANZA_VRレビュー"
+publishedAt: "2025-10-04"
+readTime: "8分"
+tags:
+  - "VR"
+  - "FANZA"
+  - "Quest3"
+author: "takayama"
 ---
 
 # Quest3でFANZA VRを見る手順（完全ガイド）
@@ -96,4 +103,3 @@ Quest3とFANZA VRを組み合わせれば、自宅で映画館以上の没入感
 - 👉 [FANZA公式サイトで無料登録はこちら](#)  
 - 👉 [FANZA人気VRランキングを見る](#)  
 - 👉 [Quest3の最新モデルをAmazonでチェック](#)  
-

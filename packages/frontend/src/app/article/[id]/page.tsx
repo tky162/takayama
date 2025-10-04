@@ -2,7 +2,11 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { CalendarIcon, ClockIcon, TagIcon } from '@heroicons/react/24/outline'
-import { getArticleBySlug, getRelatedArticles } from '@/lib/articles-server'
+import {
+  getAllArticleMetadata,
+  getArticleBySlug,
+  getRelatedArticles,
+} from '@/lib/articles-server'
 import SidebarStatic from '@/components/ui/Sidebar.static'
 import MobileSidebar from '@/components/ui/MobileSidebar'
 
@@ -10,18 +14,13 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
-export async function generateStaticParams() {
-  // For static export, we'll generate params for the articles we have
-  // This is a simplified version - in production you'd get this from your data source
-  const articles = [
-    'av001',
-    'industry-tech-trends',
-    'shinjuku-kabukicho-review',
-    'fanza-ranking-2024',
-  ]
+export const dynamicParams = false
 
-  return articles.map((id) => ({
-    id,
+export async function generateStaticParams() {
+  const articles = getAllArticleMetadata()
+
+  return articles.map((article) => ({
+    id: article.slug,
   }))
 }
 
