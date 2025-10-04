@@ -41,7 +41,7 @@ export default async function SidebarStatic({
           style={{ border: '1px solid var(--border-light)' }}
         >
           <Image
-            src="https://pub-64fb0bfdf1794163b59576eb362601e9.r2.dev/ogp.jp2"
+            src="https://pub-64fb0bfdf1794163b59576eb362601e9.r2.dev/ogp.jpg"
             alt="高山まさあきの夜遊び研究所"
             width={800}
             height={420}
@@ -52,7 +52,7 @@ export default async function SidebarStatic({
       </Link>
 
       {/* 検索ボックス */}
-      <div className="content-card sticky top-4">
+      <div className="content-card">
         <h3
           className="text-lg font-semibold mb-4"
           style={{ color: 'var(--text-primary)' }}
