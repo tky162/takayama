@@ -1,8 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import ArticleCard from '@/components/ui/ArticleCard'
-import SidebarStatic from '@/components/ui/Sidebar.static'
-import MobileSidebar from '@/components/ui/MobileSidebar'
 import { getAllTagsWithCounts, getArticlesByTag } from '@/lib/articles-server'
 
 export async function generateStaticParams() {
@@ -58,43 +56,29 @@ export default async function TagPage({
           </ol>
         </nav>
 
-        {/* メイン2カラムレイアウト */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* メインコンテンツエリア（約70%幅） */}
-          <div className="lg:col-span-3 space-y-8">
-            <h1
-              className="text-3xl font-bold mb-8"
-              style={{ color: 'var(--text-primary)' }}
-            >
-              タグ: {decodedTag}
-            </h1>
+        <div className="space-y-8">
+          <h1
+            className="text-3xl font-bold"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            タグ: {decodedTag}
+          </h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {articles.map(article => (
-                <ArticleCard
-                  key={article.id}
-                  title={article.title}
-                  excerpt={article.excerpt}
-                  category={article.category}
-                  publishedAt={article.publishedAt}
-                  readTime={article.readTime}
-                  viewCount={article.viewCount}
-                  thumbnail={article.thumbnail}
-                  href={`/article/${article.slug}`}
-                  isPremium={article.isPremium}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* サイドバーエリア（約30%幅） */}
-          <div className="lg:col-span-1 hidden lg:block">
-            <SidebarStatic />
-          </div>
-          <div className="lg:hidden">
-            <MobileSidebar>
-              <SidebarStatic />
-            </MobileSidebar>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {articles.map(article => (
+              <ArticleCard
+                key={article.id}
+                title={article.title}
+                excerpt={article.excerpt}
+                category={article.category}
+                publishedAt={article.publishedAt}
+                readTime={article.readTime}
+                viewCount={article.viewCount}
+                thumbnail={article.thumbnail}
+                href={`/article/${article.slug}`}
+                isPremium={article.isPremium}
+              />
+            ))}
           </div>
         </div>
       </div>

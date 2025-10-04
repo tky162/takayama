@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import SidebarStatic from '@/components/ui/Sidebar.static'
+import MobileSidebar from '@/components/ui/MobileSidebar'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import './globals.css'
 
@@ -34,7 +36,24 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <div
+            className="min-h-screen"
+            style={{ background: 'var(--background)' }}
+          >
+            {/* Mobile navigation drawer */}
+            <MobileSidebar>
+              <SidebarStatic />
+            </MobileSidebar>
+
+            <div className="max-w-7xl mx-auto px-4 py-8">
+              <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-8">
+                <aside className="hidden lg:block lg:sticky lg:top-4 self-start">
+                  <SidebarStatic />
+                </aside>
+                <main>{children}</main>
+              </div>
+            </div>
+          </div>
         </ThemeProvider>
       </body>
     </html>

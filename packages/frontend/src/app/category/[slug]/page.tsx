@@ -1,8 +1,6 @@
 import { notFound } from 'next/navigation'
 import CategoryPageClient from '@/components/pages/CategoryPageClient'
 import { getArticlesByCategory } from '@/lib/articles-server'
-import SidebarStatic from '@/components/ui/Sidebar.static'
-import MobileSidebar from '@/components/ui/MobileSidebar'
 
 interface CategoryInfo {
   slug: string
@@ -72,22 +70,7 @@ export default async function CategoryPage({
     return (
       <div className="min-h-screen" style={{ background: 'var(--background)' }}>
         <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <div className="lg:col-span-3">
-              <CategoryPageClient
-                category={category}
-                initialArticles={articles}
-              />
-            </div>
-            <div className="lg:col-span-1 hidden lg:block">
-              <SidebarStatic />
-            </div>
-            <div className="lg:hidden">
-              <MobileSidebar>
-                <SidebarStatic />
-              </MobileSidebar>
-            </div>
-          </div>
+          <CategoryPageClient category={category} initialArticles={articles} />
         </div>
       </div>
     )

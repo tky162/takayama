@@ -7,8 +7,8 @@ import {
   getArticleBySlug,
   getRelatedArticles,
 } from '@/lib/articles-server'
-import SidebarStatic from '@/components/ui/Sidebar.static'
-import MobileSidebar from '@/components/ui/MobileSidebar'
+import MarkdownRenderer from '@/components/MarkdownRenderer'
+import TableOfContents from '@/components/TableOfContents'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -36,6 +36,7 @@ export default async function ArticlePage({
   }
 
   const article = dbArticle
+  const tocHeadings = article.headings ?? []
 
   // 関連記事を取得
   const relatedDbArticles = await getRelatedArticles(dbArticle, 3)
@@ -111,10 +112,9 @@ export default async function ArticlePage({
           </ol>
         </nav>
 
-        {/* メイン2カラムレイアウト */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* メインコンテンツエリア（約70%幅） */}
-          <div className="lg:col-span-3 space-y-8">
+        {/* メインコンテンツレイアウト */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-9 space-y-8">
             {/* 記事メイン */}
             <article className="rounded-lg overflow-hidden content-card-elevated">
               {/* 記事ヘッダー */}
@@ -143,13 +143,13 @@ export default async function ArticlePage({
               </div>
 
               {/* 記事本文 */}
-              <div className="p-8">
-                <div
-                  style={{
-                    color: 'var(--text-primary)',
-                  }}
-                  dangerouslySetInnerHTML={{ __html: article.content || '' }}
-                />
+              <div className="p-8 space-y-8">
+                {tocHeadings.length > 0 && (
+                  <div className="content-card lg:hidden">
+                    <TableOfContents headings={tocHeadings} />
+                  </div>
+                )}
+                <MarkdownRenderer html={article.content || ''} />
               </div>
 
               {/* 記事メタ情報 */}
@@ -412,14 +412,13 @@ export default async function ArticlePage({
             )}
           </div>
 
-          {/* サイドバーエリア（約30%幅） */}
-          <div className="lg:col-span-1 hidden lg:block">
-            <SidebarStatic />
-          </div>
-          <div className="lg:hidden">
-            <MobileSidebar>
-              <SidebarStatic />
-            </MobileSidebar>
+          {/* 目次エリア（右カラム） */}
+          <div className="hidden lg:block lg:col-span-3">
+            {tocHeadings.length > 0 && (
+              <div className="content-card sticky top-4">
+                <TableOfContents headings={tocHeadings} />
+              </div>
+            )}
           </div>
         </div>
       </div>

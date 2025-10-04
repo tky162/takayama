@@ -1,29 +1,24 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { marked } from 'marked'
+import { z } from 'zod'
 import type { Article, ArticleMetadata } from './articles'
+import { renderMarkdown } from './markdown'
 
 // Markdownコンテンツのディレクトリパス
 const articlesDirectory = path.join(process.cwd(), 'content/articles')
 
-// Markedの設定
-marked.setOptions({
-  breaks: true,
-  gfm: true,
-})
-
 /**
  * 記事ファイルのパスを再帰的に取得
  */
-function getArticleFilePaths(dir: string = articlesDirectory): string[] {
+function collectArticleFilePaths(dir: string = articlesDirectory): string[] {
   let files: string[] = []
   try {
     const entries = fs.readdirSync(dir, { withFileTypes: true })
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name)
       if (entry.isDirectory()) {
-        files = files.concat(getArticleFilePaths(fullPath))
+        files = files.concat(collectArticleFilePaths(fullPath))
       } else if (entry.isFile() && entry.name.endsWith('.md')) {
         files.push(fullPath)
       }
@@ -32,6 +27,215 @@ function getArticleFilePaths(dir: string = articlesDirectory): string[] {
     console.error(`記事ディレクトリの読み取りエラー (${dir}):`, error)
   }
   return files
+}
+
+let articleFilePathCache: string[] | null = null
+
+function getArticleFilePaths(): string[] {
+  if (process.env.NODE_ENV !== 'production') {
+    return collectArticleFilePaths()
+  }
+
+  if (!articleFilePathCache) {
+    articleFilePathCache = collectArticleFilePaths()
+  }
+
+  return [...articleFilePathCache]
+}
+
+const ArticleFrontmatterSchema = z.object({
+  title: z.string().min(1, 'title is required'),
+  excerpt: z.unknown().optional(),
+  category: z.unknown().optional(),
+  publishedAt: z.union([z.string(), z.date()]).optional(),
+  readTime: z.unknown().optional(),
+  viewCount: z.union([z.number(), z.string()]).optional(),
+  thumbnail: z.unknown().optional(),
+  isPremium: z.union([z.boolean(), z.string()]).optional(),
+  tags: z.union([z.array(z.string()), z.string()]).optional(),
+  author: z.unknown().optional(),
+})
+
+type RawFrontmatter = z.infer<typeof ArticleFrontmatterSchema>
+
+interface NormalizedFrontmatter {
+  title: string
+  excerpt: string
+  category: string
+  publishedAt: string
+  readTime: string
+  viewCount: number
+  thumbnail: string
+  isPremium: boolean
+  tags: string[]
+  author: string
+}
+
+function normalizeFrontmatter(slug: string, data: unknown): NormalizedFrontmatter {
+  const parsed = ArticleFrontmatterSchema.safeParse(data)
+
+  if (!parsed.success) {
+    throw new Error(
+      `[articles] Frontmatter validation failed for "${slug}": ${parsed.error.message}`
+    )
+  }
+
+  const frontmatter = parsed.data as RawFrontmatter
+
+  const toStringValue = (value: unknown, fallback = ''): string => {
+    if (value === undefined || value === null) {
+      return fallback
+    }
+    return String(value).trim()
+  }
+
+  const title = toStringValue(frontmatter.title)
+
+  if (!title) {
+    throw new Error(`[articles] Title is required for "${slug}"`)
+  }
+
+  const toPublishedAt = (value: RawFrontmatter['publishedAt']): string => {
+    if (!value) {
+      return ''
+    }
+
+    const source = value instanceof Date ? value : new Date(String(value))
+
+    if (Number.isNaN(source.getTime())) {
+      throw new Error(
+        `[articles] Invalid publishedAt value for "${slug}": ${String(value)}`
+      )
+    }
+
+    return source.toISOString()
+  }
+
+  const toViewCount = (value: RawFrontmatter['viewCount']): number => {
+    if (value === undefined || value === null || value === '') {
+      return 0
+    }
+
+    const numeric =
+      typeof value === 'number' ? value : Number.parseInt(String(value), 10)
+
+    if (!Number.isFinite(numeric) || numeric < 0) {
+      throw new Error(
+        `[articles] Invalid viewCount value for "${slug}": ${String(value)}`
+      )
+    }
+
+    return numeric
+  }
+
+  const toBoolean = (value: RawFrontmatter['isPremium']): boolean => {
+    if (value === undefined || value === null) {
+      return false
+    }
+
+    if (typeof value === 'boolean') {
+      return value
+    }
+
+    const normalized = String(value).trim().toLowerCase()
+    return ['true', '1', 'yes', 'on'].includes(normalized)
+  }
+
+  const toTags = (value: RawFrontmatter['tags']): string[] => {
+    if (!value) {
+      return []
+    }
+
+    if (Array.isArray(value)) {
+      return value.map(tag => String(tag).trim()).filter(Boolean)
+    }
+
+    return String(value)
+      .split(',')
+      .map(tag => tag.trim())
+      .filter(Boolean)
+  }
+
+  return {
+    title,
+    excerpt: toStringValue(frontmatter.excerpt),
+    category: toStringValue(frontmatter.category),
+    publishedAt: toPublishedAt(frontmatter.publishedAt),
+    readTime: toStringValue(frontmatter.readTime),
+    viewCount: toViewCount(frontmatter.viewCount),
+    thumbnail: toStringValue(frontmatter.thumbnail),
+    isPremium: toBoolean(frontmatter.isPremium),
+    tags: toTags(frontmatter.tags),
+    author: toStringValue(frontmatter.author),
+  }
+}
+
+interface ParsedArticleFile {
+  slug: string
+  frontmatter: NormalizedFrontmatter
+  content: string
+}
+
+function parseArticleFile(
+  filePath: string,
+  slug = getSlugFromFileName(filePath)
+): ParsedArticleFile | null {
+  try {
+    const fileContents = fs.readFileSync(filePath, 'utf8')
+    const { data, content } = matter(fileContents)
+    const frontmatter = normalizeFrontmatter(slug, data)
+
+    return {
+      slug,
+      frontmatter,
+      content,
+    }
+  } catch (error) {
+    console.error(`記事の解析に失敗しました (${slug}):`, error)
+    return null
+  }
+}
+
+function buildMetadata(
+  slug: string,
+  frontmatter: NormalizedFrontmatter
+): ArticleMetadata {
+  return {
+    id: slug,
+    slug,
+    title: frontmatter.title,
+    excerpt: frontmatter.excerpt,
+    category: frontmatter.category,
+    publishedAt: frontmatter.publishedAt,
+    readTime: frontmatter.readTime,
+    viewCount: frontmatter.viewCount,
+    thumbnail: frontmatter.thumbnail,
+    isPremium: frontmatter.isPremium,
+    tags: frontmatter.tags,
+    author: frontmatter.author,
+  }
+}
+
+function findArticleBySlug(slug: string): ParsedArticleFile | null {
+  const filePath = getArticleFilePaths().find(
+    candidate => getSlugFromFileName(candidate) === slug
+  )
+
+  if (!filePath || !fs.existsSync(filePath)) {
+    return null
+  }
+
+  return parseArticleFile(filePath, slug)
+}
+
+function getPublishedTimestamp(value: string): number {
+  if (!value) {
+    return 0
+  }
+
+  const timestamp = new Date(value).getTime()
+
+  return Number.isNaN(timestamp) ? 0 : timestamp
 }
 
 /**
@@ -46,30 +250,13 @@ function getSlugFromFileName(fileName: string): string {
  */
 export function getArticleMetadata(slug: string): ArticleMetadata | null {
   try {
-    const filePaths = getArticleFilePaths()
-    const fullPath = filePaths.find(p => getSlugFromFileName(p) === slug)
+    const article = findArticleBySlug(slug)
 
-    if (!fullPath || !fs.existsSync(fullPath)) {
+    if (!article) {
       return null
     }
 
-    const fileContents = fs.readFileSync(fullPath, 'utf8')
-    const { data } = matter(fileContents)
-
-    return {
-      id: slug,
-      slug,
-      title: data.title || '',
-      excerpt: data.excerpt || '',
-      category: data.category || '',
-      publishedAt: data.publishedAt || '',
-      readTime: data.readTime || '',
-      viewCount: data.viewCount || 0,
-      thumbnail: data.thumbnail || '',
-      isPremium: data.isPremium || false,
-      tags: data.tags || [],
-      author: data.author || '',
-    }
+    return buildMetadata(article.slug, article.frontmatter)
   } catch (error) {
     console.error(`記事メタデータの読み取りエラー (${slug}):`, error)
     return null
@@ -81,33 +268,19 @@ export function getArticleMetadata(slug: string): ArticleMetadata | null {
  */
 export function getArticleBySlug(slug: string): Article | null {
   try {
-    const filePaths = getArticleFilePaths()
-    const fullPath = filePaths.find(p => getSlugFromFileName(p) === slug)
+    const article = findArticleBySlug(slug)
 
-    if (!fullPath || !fs.existsSync(fullPath)) {
+    if (!article) {
       return null
     }
 
-    const fileContents = fs.readFileSync(fullPath, 'utf8')
-    const { data, content } = matter(fileContents)
-
-    // MarkdownをHTMLに変換
-    const htmlContent = marked(content) as string
+    const metadata = buildMetadata(article.slug, article.frontmatter)
+    const { html, headings } = renderMarkdown(article.content)
 
     return {
-      id: slug,
-      slug,
-      title: data.title || '',
-      excerpt: data.excerpt || '',
-      content: htmlContent,
-      category: data.category || '',
-      publishedAt: data.publishedAt || '',
-      readTime: data.readTime || '',
-      viewCount: data.viewCount || 0,
-      thumbnail: data.thumbnail || '',
-      isPremium: data.isPremium || false,
-      tags: data.tags || [],
-      author: data.author || '',
+      ...metadata,
+      content: html,
+      headings,
     }
   } catch (error) {
     console.error(`記事の読み取りエラー (${slug}):`, error)
@@ -122,19 +295,16 @@ export function getAllArticleMetadata(): ArticleMetadata[] {
   const filePaths = getArticleFilePaths()
   const articles: ArticleMetadata[] = []
 
-  filePaths.forEach(fileName => {
-    const slug = getSlugFromFileName(fileName)
-    const metadata = getArticleMetadata(slug)
+  filePaths.forEach(filePath => {
+    const parsed = parseArticleFile(filePath)
 
-    if (metadata) {
-      articles.push(metadata)
+    if (parsed) {
+      articles.push(buildMetadata(parsed.slug, parsed.frontmatter))
     }
   })
 
-  // 公開日の降順でソート
   return articles.sort(
-    (a, b) =>
-      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+    (a, b) => getPublishedTimestamp(b.publishedAt) - getPublishedTimestamp(a.publishedAt)
   )
 }
 

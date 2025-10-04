@@ -1,4 +1,10 @@
 // 型定義のみ（クライアントサイドでも使用可能）
+export interface ArticleHeading {
+  id: string
+  text: string
+  level: number
+}
+
 export interface Article {
   id: string
   title: string
@@ -14,6 +20,7 @@ export interface Article {
   author: string
   slug: string
   rating?: number
+  headings?: ArticleHeading[]
 }
 
 export interface ArticleMetadata {

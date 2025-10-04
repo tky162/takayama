@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import Footer from '@/components/layout/Footer'
 import ArticleCard from '@/components/ui/ArticleCard'
-import SidebarStatic from '@/components/ui/Sidebar.static'
-import MobileSidebar from '@/components/ui/MobileSidebar'
 import { getLatestArticles, getPopularArticles } from '@/lib/articles-server'
 
 export default async function Home() {
@@ -26,8 +24,8 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <main className="flex-grow">
+    <div className="flex flex-col">
+      <main>
         <div className="container mx-auto px-4 py-8">
           {/* ヒーロセクション */}
           <div className="text-center mb-12">
@@ -45,10 +43,7 @@ export default async function Home() {
             </p>
           </div>
 
-          {/* メイン2カラムレイアウト */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* メインコンテンツエリア（約70%幅） */}
-            <div className="lg:col-span-3 space-y-12">
+          <div className="space-y-12">
               {/* 最新の記事 */}
               {latestArticles.length > 0 && (
                 <div className="content-card-elevated">
@@ -275,17 +270,6 @@ export default async function Home() {
                   </Link>
                 </div>
               </div>
-            </div>
-
-            {/* サイドバーエリア（約30%幅） */}
-            <div className="lg:col-span-1 hidden lg:block">
-              <SidebarStatic />
-            </div>
-            <div className="lg:hidden">
-              <MobileSidebar>
-                <SidebarStatic />
-              </MobileSidebar>
-            </div>
           </div>
         </div>
       </main>

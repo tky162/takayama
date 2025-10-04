@@ -1,7 +1,5 @@
 import ArticlesPageClient from '@/components/pages/ArticlesPageClient'
 import { getAllArticleMetadata, getCategories } from '@/lib/articles-server'
-import SidebarStatic from '@/components/ui/Sidebar.static'
-import MobileSidebar from '@/components/ui/MobileSidebar'
 import Link from 'next/link'
 
 export default async function ArticlesPage(): Promise<React.JSX.Element> {
@@ -50,26 +48,12 @@ export default async function ArticlesPage(): Promise<React.JSX.Element> {
             </ol>
           </nav>
 
-          {/* メイン2カラムレイアウト */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* メインコンテンツエリア（約70%幅） */}
-            <div className="lg:col-span-3 space-y-8">
-              <ArticlesPageClient
-                initialArticles={allArticles}
-                categories={formattedCategories}
-                initialQuery=""
-              />
-            </div>
-
-            {/* サイドバーエリア（約30%幅） */}
-            <div className="lg:col-span-1 hidden lg:block">
-              <SidebarStatic />
-            </div>
-            <div className="lg:hidden">
-              <MobileSidebar>
-                <SidebarStatic />
-              </MobileSidebar>
-            </div>
+          <div className="space-y-8">
+            <ArticlesPageClient
+              initialArticles={allArticles}
+              categories={formattedCategories}
+              initialQuery=""
+            />
           </div>
         </div>
       </div>
