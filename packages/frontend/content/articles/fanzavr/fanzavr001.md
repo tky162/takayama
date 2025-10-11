@@ -8,12 +8,14 @@ viewCount: 0
 isPremium: false
 tags: ['VR', 'S1', '美少女', '美尻', '香水じゅん']
 author: '高山まさあき'
-thumbnail: https://mn86.tonkotsu.jp/img/takayamalog/fanzavr/Fanzavr001_001.jpg
+thumbnail: https://imgdose-api.nameless-rice-6dac.workers.dev/files/1760156472182-136148cb-77e7-4998-8f3c-c9f3f1cf0489.webp
 ---
 
-![alt text](https://mn86.tonkotsu.jp/img/takayamalog/fanzavr/Fanzavr001_002.jpg)
+![alt text](https://imgdose-api.nameless-rice-6dac.workers.dev/files/1760156472182-136148cb-77e7-4998-8f3c-c9f3f1cf0489.webp)
 
-![alt text](https://mn86.tonkotsu.jp/img/takayamalog/fanzavr/Fanzavr001_003.jpg)
+![alt text](https://imgdose-api.nameless-rice-6dac.workers.dev/files/1760156470074-d752c43c-ca95-48be-84e2-4f24f6a3b423.webp)
+
+![alt text](https://imgdose-api.nameless-rice-6dac.workers.dev/files/1760156473708-4bc13928-9802-4980-88de-51ae64a34537.webp)
 
 ## 作品基本情報
 

@@ -8,7 +8,7 @@ viewCount: 0
 isPremium: false
 tags: ['AVデビュー', 'S1', '新人', '元アイドル', '瀬戸環奈']
 author: '高山まさあき'
-thumbnail: https://mn86.tonkotsu.jp/img/takayamalog/fanza/2025/07/kanna02.jpg
+thumbnail: https://imgdose-api.nameless-rice-6dac.workers.dev/files/1760156860446-a382af83-3c68-4806-bf18-ef836a178b34.webp
 ---
 
 # 瀬戸環奈AVデビュー - SONE-614 新人NO.1STYLE 瀬戸環奈AVデビュー
@@ -16,7 +16,11 @@ thumbnail: https://mn86.tonkotsu.jp/img/takayamalog/fanza/2025/07/kanna02.jpg
 ## 注目度MAX！元アイドルのAVデビュー
 
 テスト
-![alt text](https://mn86.tonkotsu.jp/img/takayamalog/fanza/2025/07/kanna01.jpg)
+![alt text](https://imgdose-api.nameless-rice-6dac.workers.dev/files/1760156860446-a382af83-3c68-4806-bf18-ef836a178b34.webp)
+
+![alt text](https://imgdose-api.nameless-rice-6dac.workers.dev/files/1760156859270-c2638f71-eb4f-4b1f-885c-b3a0e711b799.webp)
+
+![alt text](https://imgdose-api.nameless-rice-6dac.workers.dev/files/1760156861846-ef247893-7543-4975-bd4b-8121ff392d3e.webp)
 
 ついにこの日がやってきました。元アイドルとして活動していた瀬戸環奈さんがS1専属女優としてAVデビューを果たしました。業界内でも大きな注目を集めているこの作品について、詳しくレビューしていきます。
 
