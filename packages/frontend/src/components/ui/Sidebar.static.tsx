@@ -5,10 +5,11 @@ import {
   getLatestArticles,
   getArchivedArticlesData,
   getAllTagsWithCounts,
+  getAllArticleMetadata,
 } from '@/lib/articles-server'
 import SidebarArchiveList from './SidebarArchiveList'
-import ClientSearchBarWrapper from './ClientSearchBarWrapper'
 import SidebarTagList from './SidebarTagList'
+import SidebarSearch from './SidebarSearch'
 
 interface SidebarProps {
   className?: string
@@ -21,6 +22,7 @@ export default async function SidebarStatic({
   const recentPosts = await getLatestArticles(5)
   const archivedData = getArchivedArticlesData()
   const allTags = getAllTagsWithCounts()
+  const allArticles = getAllArticleMetadata()
 
   const categories = [
     { name: '風俗体験談', slug: 'fuzoku', count: 2 },
@@ -59,7 +61,7 @@ export default async function SidebarStatic({
         >
           サイト内を検索
         </h3>
-        <ClientSearchBarWrapper />
+        <SidebarSearch allArticles={allArticles} />
       </div>
 
       {/* 最新の研究報告 */}
