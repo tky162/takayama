@@ -21,15 +21,17 @@ export async function generateStaticParams() {
 export default async function TagPage({
   params,
 }: {
-  params: Promise<{ tag: string }>
+  params: { tag: string }
 }): Promise<React.JSX.Element> {
-  const { tag } = await params
-  // Next.jsはURLパラメータを自動的にデコードするので、そのまま使用
+  const { tag } = params
   const articles = getArticlesByTag(tag)
 
   if (articles.length === 0) {
     notFound()
   }
+
+  // デコードされたタグ名を取得（表示用）
+  const decodedTag = decodeURIComponent(tag)
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
@@ -60,7 +62,7 @@ export default async function TagPage({
               </Link>
             </li>
             <li>/</li>
-            <li style={{ color: 'var(--text-primary)' }}>{tag}</li>
+            <li style={{ color: 'var(--text-primary)' }}>{decodedTag}</li>
           </ol>
         </nav>
 
@@ -69,7 +71,7 @@ export default async function TagPage({
             className="text-3xl font-bold"
             style={{ color: 'var(--text-primary)' }}
           >
-            タグ: {tag}
+            タグ: {decodedTag}
           </h1>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

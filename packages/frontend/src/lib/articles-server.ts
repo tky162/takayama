@@ -531,13 +531,20 @@ export function getAllTagsWithCounts(): Array<{
 
   allArticles.forEach(article => {
     article.tags.forEach(tag => {
-      tagCounts[tag] = (tagCounts[tag] || 0) + 1
+      const normalizedTag = tag.trim()
+      if (normalizedTag) {
+        tagCounts[normalizedTag] = (tagCounts[normalizedTag] || 0) + 1
+      }
     })
   })
 
   return Object.entries(tagCounts)
-    .map(([name, count]) => ({ name, slug: name, count }))
-    .sort((a, b) => b.count - a.count) // カウントが多い順
+    .map(([name, count]) => ({
+      name,
+      slug: encodeURIComponent(name.toLowerCase()),
+      count,
+    }))
+    .sort((a, b) => b.count - a.count)
 }
 
 /**
@@ -545,6 +552,14 @@ export function getAllTagsWithCounts(): Array<{
  */
 export function getArticlesByTag(tagSlug: string): ArticleMetadata[] {
   const allArticles = getAllArticleMetadata()
-  // Next.jsはURLパラメータを自動的にデコードするので、そのまま使用
-  return allArticles.filter(article => article.tags.includes(tagSlug))
+  try {
+    const tagName = decodeURIComponent(tagSlug)
+    return allArticles.filter(article =>
+      article.tags.some(tag => tag.toLowerCase() === tagName.toLowerCase())
+    )
+  } catch (e) {
+    // 不正なエンコーディングの場合
+    console.error(`Invalid tag slug: ${tagSlug}`, e)
+    return []
+  }
 }

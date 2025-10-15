@@ -15,7 +15,7 @@ thumbnail: https://imgdose-api.nameless-rice-6dac.workers.dev/files/176034443883
 
 ## 注目度MAX！元アイドルのAVデビュー
 
-テスト
+
 ![alt text](https://imgdose-api.nameless-rice-6dac.workers.dev/files/1760156860446-a382af83-3c68-4806-bf18-ef836a178b34.webp)
 
 ![alt text](https://imgdose-api.nameless-rice-6dac.workers.dev/files/1760156859270-c2638f71-eb4f-4b1f-885c-b3a0e711b799.webp)
@@ -26,7 +26,7 @@ thumbnail: https://imgdose-api.nameless-rice-6dac.workers.dev/files/176034443883
 
 ## 作品基本情報
 
-テスト
+
 
 - **品番**: SONE-614
 - **タイトル**: 新人NO.1STYLE 瀬戸環奈AVデビュー
