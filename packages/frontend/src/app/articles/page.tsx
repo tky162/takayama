@@ -9,20 +9,18 @@ export default async function ArticlesPage(): Promise<React.JSX.Element> {
       getCategories(),
     ])
 
-    // カテゴリーデータを適切な形式に変換
+    // カテゴリーデータを適切な形式に変換（業界研究とFANZA動画を除外）
+    const allowedCategories = ['fuzoku', 'fanzavr']
     const formattedCategories = [
       { id: 'all', name: '全て', color: 'gray', count: allArticles.length },
-      ...categoryData.map(cat => ({
-        id: cat.slug,
-        name: cat.name,
-        color:
-          cat.slug === 'fuzoku'
-            ? 'red'
-            : cat.slug === 'fanza'
-              ? 'purple'
-              : 'blue',
-        count: cat.count,
-      })),
+      ...categoryData
+        .filter(cat => allowedCategories.includes(cat.slug))
+        .map(cat => ({
+          id: cat.slug,
+          name: cat.name,
+          color: cat.slug === 'fuzoku' ? 'red' : 'blue',
+          count: cat.count,
+        })),
     ]
 
     return (

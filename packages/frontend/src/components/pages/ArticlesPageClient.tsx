@@ -21,12 +21,11 @@ export default function ArticlesPageClient({
   const [searchQuery, setSearchQuery] = useState(initialQuery)
   const [currentPage, setCurrentPage] = useState(1)
 
-  // 記事フィルタリング
+  // 記事フィルタリング（業界研究とFANZA動画を除外）
   const filteredArticles = initialArticles.filter(article => {
     const matchesCategory =
       selectedCategory === 'all' ||
       (selectedCategory === 'fuzoku' && article.category === '風俗体験談') ||
-      (selectedCategory === 'fanza' && article.category === 'FANZA動画') ||
       (selectedCategory === 'fanzavr' && article.category === 'FANZA_VRレビュー')
 
     const matchesSearch =

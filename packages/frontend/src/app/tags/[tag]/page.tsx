@@ -5,9 +5,17 @@ import { getAllTagsWithCounts, getArticlesByTag } from '@/lib/articles-server'
 
 export async function generateStaticParams() {
   const allTags = getAllTagsWithCounts()
-  return allTags.map(tag => ({
-    tag: tag.slug,
-  }))
+
+  // すべてのタグを確実に生成
+  const params = allTags.map(tag => {
+    console.log('Generating tag page for:', tag.name, '(slug:', tag.slug, ')')
+    return {
+      tag: tag.slug,
+    }
+  })
+
+  console.log('Total tag pages to generate:', params.length)
+  return params
 }
 
 export default async function TagPage({
