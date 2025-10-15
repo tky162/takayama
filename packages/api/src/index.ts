@@ -14,6 +14,61 @@ app.use("*", cors());
 
 app.get("/api/health", (c) => c.json({ status: "ok" }));
 
+// 閲覧数を記録
+app.post("/api/views", async (c) => {
+  const slug = c.req.query("slug");
+  if (!slug) {
+    return c.json({ error: "missing slug" }, 400);
+  }
+
+  const viewedAt = Math.floor(Date.now() / 1000);
+  const ip = c.req.header("cf-connecting-ip") ?? "unknown";
+  const ipHash = await digest(ip, slug, viewedAt);
+
+  await c.env.COMMENTS_DB.prepare(
+    `INSERT INTO article_views (post_slug, viewed_at, ip_hash)
+     VALUES (?, ?, ?)`
+  )
+    .bind(slug, viewedAt, ipHash)
+    .run();
+
+  return c.json({ ok: true });
+});
+
+// 閲覧数を取得
+app.get("/api/views", async (c) => {
+  const slug = c.req.query("slug");
+  if (!slug) {
+    return c.json({ error: "missing slug" }, 400);
+  }
+
+  const { results } = await c.env.COMMENTS_DB.prepare(
+    `SELECT COUNT(*) as count FROM article_views WHERE post_slug = ?`
+  )
+    .bind(slug)
+    .all<{ count: number }>();
+
+  const count = results?.[0]?.count ?? 0;
+  return c.json({ slug, viewCount: count });
+});
+
+// 全記事の閲覧数を取得
+app.get("/api/views/all", async (c) => {
+  const { results } = await c.env.COMMENTS_DB.prepare(
+    `SELECT post_slug as postSlug, COUNT(*) as count
+     FROM article_views
+     GROUP BY post_slug`
+  )
+    .all<{ postSlug: string; count: number }>();
+
+  const views = results?.reduce((acc, row) => {
+    acc[row.postSlug] = row.count;
+    return acc;
+  }, {} as Record<string, number>) ?? {};
+
+  return c.json({ views });
+});
+
 app.get("/api/comments", async (c) => {
   const slug = c.req.query("slug");
   if (!slug) {
