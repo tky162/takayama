@@ -536,7 +536,7 @@ export function getAllTagsWithCounts(): Array<{
   })
 
   return Object.entries(tagCounts)
-    .map(([name, count]) => ({ name, slug: encodeURIComponent(name), count }))
+    .map(([name, count]) => ({ name, slug: name, count }))
     .sort((a, b) => b.count - a.count) // カウントが多い順
 }
 
@@ -545,6 +545,6 @@ export function getAllTagsWithCounts(): Array<{
  */
 export function getArticlesByTag(tagSlug: string): ArticleMetadata[] {
   const allArticles = getAllArticleMetadata()
-  const decodedTag = decodeURIComponent(tagSlug)
-  return allArticles.filter(article => article.tags.includes(decodedTag))
+  // Next.jsはURLパラメータを自動的にデコードするので、そのまま使用
+  return allArticles.filter(article => article.tags.includes(tagSlug))
 }

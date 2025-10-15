@@ -241,9 +241,10 @@ export default async function ArticlePage({
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {article.tags.map(tag => (
-                      <span
+                      <Link
                         key={tag}
-                        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+                        href={`/tags/${tag}`}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors hover:opacity-80"
                         style={{
                           background: 'rgba(59, 130, 246, 0.1)',
                           color: '#3b82f6',
@@ -252,7 +253,7 @@ export default async function ArticlePage({
                       >
                         <TagIcon className="h-3 w-3 mr-1" />
                         {tag}
-                      </span>
+                      </Link>
                     ))}
                   </div>
                 </div>

@@ -16,7 +16,7 @@ export default async function TagPage({
   params: Promise<{ tag: string }>
 }): Promise<React.JSX.Element> {
   const { tag } = await params
-  const decodedTag = decodeURIComponent(tag)
+  // Next.jsはURLパラメータを自動的にデコードするので、そのまま使用
   const articles = getArticlesByTag(tag)
 
   if (articles.length === 0) {
@@ -52,7 +52,7 @@ export default async function TagPage({
               </Link>
             </li>
             <li>/</li>
-            <li style={{ color: 'var(--text-primary)' }}>{decodedTag}</li>
+            <li style={{ color: 'var(--text-primary)' }}>{tag}</li>
           </ol>
         </nav>
 
@@ -61,7 +61,7 @@ export default async function TagPage({
             className="text-3xl font-bold"
             style={{ color: 'var(--text-primary)' }}
           >
-            タグ: {decodedTag}
+            タグ: {tag}
           </h1>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
