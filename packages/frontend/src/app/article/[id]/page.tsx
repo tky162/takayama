@@ -10,6 +10,7 @@ import {
 import MarkdownRenderer from '@/components/MarkdownRenderer'
 import TableOfContents from '@/components/TableOfContents'
 import ViewTracker from '@/components/ViewTracker'
+import ScrollToTopButton from '@/components/ui/ScrollToTopButton'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -89,9 +90,10 @@ export default async function ArticlePage({
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       <ViewTracker slug={id} apiUrl={apiUrl} />
+      <ScrollToTopButton />
       <div className="container mx-auto px-0 sm:px-4 py-4">
         {/* パンくずリスト */}
-        <nav className="mb-4 sm:mb-8 px-4 sm:px-0">
+        <nav className="mb-4 sm:mb-8 px-2 sm:px-0">
           <ol
             className="flex items-center space-x-2 text-sm"
             style={{ color: 'var(--text-secondary)' }}
@@ -127,7 +129,7 @@ export default async function ArticlePage({
             <article className="rounded-lg overflow-hidden content-card-elevated">
               {/* 記事ヘッダー */}
               <div
-                className="p-4 sm:p-8"
+                className="px-2 py-4 sm:p-8"
                 style={{ borderBottom: '1px solid var(--border)' }}
               >
                 <h1
@@ -151,7 +153,7 @@ export default async function ArticlePage({
               </div>
 
               {/* 記事本文 */}
-              <div className="p-4 sm:p-8 space-y-4">
+              <div className="px-2 py-4 sm:p-8 space-y-4">
                 {tocHeadings.length > 0 && (
                   <div className="content-card lg:hidden">
                     <TableOfContents headings={tocHeadings} />
@@ -162,7 +164,7 @@ export default async function ArticlePage({
 
               {/* 記事メタ情報 */}
               <div
-                className="p-4 sm:p-8"
+                className="px-2 py-4 sm:p-8"
                 style={{ borderTop: '1px solid var(--border)' }}
               >
                 {/* 研究概要 */}
@@ -261,7 +263,7 @@ export default async function ArticlePage({
 
               {/* 記事フッター */}
               <div
-                className="p-4 sm:p-8"
+                className="px-2 py-4 sm:p-8"
                 style={{
                   borderTop: '1px solid var(--border)',
                   background: 'var(--surface)',
