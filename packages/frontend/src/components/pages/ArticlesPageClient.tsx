@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import ArticleCard from '@/components/ui/ArticleCard'
-import CategorySelector from '@/components/ui/CategorySelector'
 import SearchBar from '@/components/ui/SearchBar'
 import Pagination from '@/components/ui/Pagination'
 import type { ArticleMetadata } from '@/lib/articles'
@@ -64,48 +63,81 @@ export default function ArticlesPageClient({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       <div className="container mx-auto px-4 py-8">
         {/* ヘッダーセクション */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">記事一覧</h1>
-          <p className="text-xl text-gray-600 mb-8">
+        <div className="mb-8">
+          {/* 検索ボックス */}
+          <div className="max-w-2xl mb-6">
+            <SearchBar
+              placeholder="記事を検索..."
+              onSearch={handleSearch}
+              className="w-full"
+              realtime={false}
+            />
+          </div>
+
+          <h1
+            className="text-4xl font-bold mb-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            記事一覧
+          </h1>
+          <p
+            className="text-xl mb-6"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             研究所の最新記事をお楽しみください
           </p>
-        </div>
 
-        {/* 検索・フィルターセクション */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1">
-              <SearchBar
-                placeholder="記事を検索..."
-                onSearch={handleSearch}
-                className="w-full"
-              />
-            </div>
-            <div className="lg:w-auto">
-              <CategorySelector
-                categories={categories}
-                selectedCategory={selectedCategory}
-                onCategoryChange={handleCategoryChange}
-              />
+          {/* 研究分野トグルボタン */}
+          <div className="content-card">
+            <h3
+              className="text-sm font-semibold mb-3"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              研究分野
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {categories.map(category => (
+                <button
+                  key={category.id}
+                  onClick={() => handleCategoryChange(category.id)}
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                  style={{
+                    background:
+                      selectedCategory === category.id
+                        ? 'var(--primary)'
+                        : 'var(--surface-elevated)',
+                    color:
+                      selectedCategory === category.id
+                        ? 'white'
+                        : 'var(--text-primary)',
+                    border:
+                      selectedCategory === category.id
+                        ? 'none'
+                        : '1px solid var(--border)',
+                  }}
+                >
+                  {category.name} ({category.count})
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
         {/* 統計情報 */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="content-card mb-8">
           <div className="flex justify-between items-center">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               {filteredArticles.length} 件の記事が見つかりました
               {searchQuery && (
-                <span className="ml-2 text-blue-600">
+                <span className="ml-2" style={{ color: 'var(--primary)' }}>
                   「{searchQuery}」で検索
                 </span>
               )}
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm" style={{ color: 'var(--text-muted)' }}>
               {startIndex + 1} -{' '}
               {Math.min(startIndex + articlesPerPage, filteredArticles.length)}{' '}
               件目を表示
@@ -134,10 +166,10 @@ export default function ArticlesPageClient({
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">
+              <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
                 該当する記事が見つかりませんでした
               </p>
-              <p className="text-gray-400 text-sm mt-2">
+              <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>
                 検索条件を変更してもう一度お試しください
               </p>
             </div>
