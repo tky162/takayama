@@ -1,8 +1,19 @@
 import Link from 'next/link'
-import { getAllTagsWithCounts } from '@/lib/articles-server'
 
-export default function TagsPage(): React.JSX.Element {
-  const allTags = getAllTagsWithCounts()
+async function getTags() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';
+  try {
+    const res = await fetch(`${apiUrl}/api/tags`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return res.json();
+  } catch (error) {
+    console.error('Error fetching tags:', error);
+    return [];
+  }
+}
+
+export default async function TagsPage(): Promise<React.JSX.Element> {
+  const allTags = await getTags()
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>

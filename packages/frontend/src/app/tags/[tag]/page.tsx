@@ -1,97 +1,75 @@
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
-import ArticleCard from '@/components/ui/ArticleCard'
-import { getAllTagsWithCounts, getArticlesByTag } from '@/lib/articles-server'
+import { Suspense } from 'react'
+import TagPageClient from '@/components/pages/TagPageClient'
 
 export async function generateStaticParams() {
-  const allTags = getAllTagsWithCounts()
-
-  // すべてのタグを確実に生成
-  const params = allTags.map(tag => {
-    console.log('Generating tag page for:', tag.name, '(slug:', tag.slug, ')')
-    return {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';
+  try {
+    const res = await fetch(`${apiUrl}/api/tags`);
+    const tags = await res.json();
+    return tags.map((tag: { slug: string }) => ({
       tag: tag.slug,
-    }
-  })
+    }));
+  } catch (error) {
+    console.error('Error generating static params for tags:', error);
+    return [];
+  }
+}
 
-  console.log('Total tag pages to generate:', params.length)
-  return params
+async function getTag(slug: string) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';
+  try {
+    const res = await fetch(`${apiUrl}/api/tags`);
+    const tags = await res.json();
+    return tags.find((tag: any) => tag.slug === slug) || null;
+  } catch (error) {
+    console.error('Error fetching tag:', error);
+    return null;
+  }
+}
+
+async function getArticles(slug: string, searchParams: { [key: string]: string | string[] | undefined }) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';
+  const params = new URLSearchParams(searchParams as Record<string, string>);
+  params.set('tag', slug);
+
+  try {
+    const res = await fetch(`${apiUrl}/api/articles?${params.toString()}`, { cache: 'no-store' });
+    if (!res.ok) {
+      return { articles: [], totalPages: 0 };
+    }
+    return res.json();
+  } catch (error) {
+    console.error('Error fetching articles for tag:', error);
+    return { articles: [], totalPages: 0 };
+  }
 }
 
 export default async function TagPage({
   params,
+  searchParams,
 }: {
   params: { tag: string }
-}): Promise<React.JSX.Element> {
-  const { tag } = params
-  const articles = getArticlesByTag(tag)
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
+  const { tag: slug } = params;
+  const decodedSlug = decodeURIComponent(slug);
 
-  if (articles.length === 0) {
-    notFound()
+  const tag = await getTag(decodedSlug);
+
+  if (!tag) {
+    notFound();
   }
 
-  // デコードされたタグ名を取得（表示用）
-  const decodedTag = decodeURIComponent(tag)
+  const articlesData = await getArticles(decodedSlug, searchParams);
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
-      <div className="container mx-auto px-4 py-8">
-        {/* パンくずリスト */}
-        <nav className="mb-8">
-          <ol
-            className="flex items-center space-x-2 text-sm"
-            style={{ color: 'var(--text-secondary)' }}
-          >
-            <li>
-              <Link
-                href="/"
-                className="hover:opacity-80"
-                style={{ color: 'var(--primary)' }}
-              >
-                ホーム
-              </Link>
-            </li>
-            <li>/</li>
-            <li>
-              <Link
-                href="/tags"
-                className="hover:opacity-80"
-                style={{ color: 'var(--primary)' }}
-              >
-                タグ一覧
-              </Link>
-            </li>
-            <li>/</li>
-            <li style={{ color: 'var(--text-primary)' }}>{decodedTag}</li>
-          </ol>
-        </nav>
-
-        <div className="space-y-8">
-          <h1
-            className="text-3xl font-bold"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            タグ: {decodedTag}
-          </h1>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {articles.map(article => (
-              <ArticleCard
-                key={article.id}
-                title={article.title}
-                excerpt={article.excerpt}
-                category={article.category}
-                publishedAt={article.publishedAt}
-                readTime={article.readTime}
-                viewCount={article.viewCount}
-                thumbnail={article.thumbnail}
-                href={`/article/${article.slug}`}
-                isPremium={article.isPremium}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+    <Suspense fallback={<div>Loading...</div>}>
+      <TagPageClient
+        tag={tag}
+        initialArticles={articlesData.articles}
+        totalPages={articlesData.totalPages}
+      />
+    </Suspense>
+  );
 }

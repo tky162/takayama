@@ -7,7 +7,7 @@ account_id = "512387a50678415712a91baa79f7a162"
   enabled = true
 
 [[d1_databases]]
-  binding = "COMMENTS_DB"
+  binding = "DB"
   database_name = "takayama-db"
   database_id = "3919895a-890f-4896-9541-ab507d98ca67"
   migrations_dir = "packages/api/migrations"

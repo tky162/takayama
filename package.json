@@ -11,5 +11,15 @@
     "deploy:api": "pnpm --filter api deploy",
     "lint": "pnpm --filter frontend lint",
     "test": "pnpm --filter api test"
+  },
+  "devDependencies": {
+    "gray-matter": "^4.0.3",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.545.0",
+    "tailwind-merge": "^3.3.1"
   }
 }

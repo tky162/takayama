@@ -1,71 +1,58 @@
 import ArticlesPageClient from '@/components/pages/ArticlesPageClient'
-import { getAllArticleMetadata, getCategories } from '@/lib/articles-server'
-import Link from 'next/link'
+import { Suspense } from 'react'
 
-export default async function ArticlesPage(): Promise<React.JSX.Element> {
+// Fetch articles from the API based on search parameters
+async function getArticles(searchParams: { [key: string]: string | string[] | undefined }) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';
+  const query = new URLSearchParams(searchParams as Record<string, string>);
+  
   try {
-    const [allArticles, categoryData] = await Promise.all([
-      getAllArticleMetadata(),
-      getCategories(),
-    ])
-
-    // カテゴリーデータを適切な形式に変換（業界研究とFANZA動画を除外）
-    const allowedCategories = ['fuzoku', 'fanzavr']
-    const formattedCategories = [
-      { id: 'all', name: '全て', color: 'gray', count: allArticles.length },
-      ...categoryData
-        .filter(cat => allowedCategories.includes(cat.slug))
-        .map(cat => ({
-          id: cat.slug,
-          name: cat.name,
-          color: cat.slug === 'fuzoku' ? 'red' : 'blue',
-          count: cat.count,
-        })),
-    ]
-
-    return (
-      <div className="min-h-screen" style={{ background: 'var(--background)' }}>
-        <div className="container mx-auto px-4 py-8">
-          {/* パンくずリスト */}
-          <nav className="mb-8">
-            <ol
-              className="flex items-center space-x-2 text-sm"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              <li>
-                <Link
-                  href="/"
-                  className="hover:opacity-80"
-                  style={{ color: 'var(--primary)' }}
-                >
-                  ホーム
-                </Link>
-              </li>
-              <li>/</li>
-              <li style={{ color: 'var(--text-primary)' }}>記事一覧</li>
-            </ol>
-          </nav>
-
-          <div className="space-y-8">
-            <ArticlesPageClient
-              initialArticles={allArticles}
-              categories={formattedCategories}
-              initialQuery=""
-            />
-          </div>
-        </div>
-      </div>
-    )
+    const res = await fetch(`${apiUrl}/api/articles?${query.toString()}`, { cache: 'no-store' });
+    if (!res.ok) {
+      console.error('Failed to fetch articles:', res.status, res.statusText);
+      return { articles: [], totalPages: 0, currentPage: 1 };
+    }
+    return res.json();
   } catch (error) {
-    console.error('記事データ読み込みエラー:', error)
-
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8 text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">記事一覧</h1>
-          <p className="text-xl text-gray-600">データ読み込み中です...</p>
-        </div>
-      </div>
-    )
+    console.error('Error fetching articles:', error);
+    return { articles: [], totalPages: 0, currentPage: 1 };
   }
+}
+
+// Fetch all categories for the filter UI
+async function getCategories() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';
+  try {
+    const res = await fetch(`${apiUrl}/api/categories`, { next: { revalidate: 3600 } }); // Revalidate once per hour
+    if (!res.ok) {
+      console.error('Failed to fetch categories:', res.status, res.statusText);
+      return [];
+    }
+    return res.json();
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+}
+
+export default async function ArticlesPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+  const articlesData = await getArticles(searchParams);
+  const categories = await getCategories();
+
+  // Add an 'all' category to the beginning
+  const allArticlesCount = categories.reduce((sum, cat) => sum + cat.count, 0);
+  const categoriesWithAll = [
+    { id: 'all', slug: 'all', name: 'すべて', count: allArticlesCount },
+    ...categories,
+  ];
+
+  return (
+    <Suspense fallback={<div>Loading articles...</div>}>
+      <ArticlesPageClient
+        initialArticles={articlesData.articles}
+        totalPages={articlesData.totalPages}
+        categories={categoriesWithAll}
+      />
+    </Suspense>
+  )
 }

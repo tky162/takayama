@@ -1,78 +1,64 @@
 'use client'
 
-import { useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import ArticleCard from '@/components/ui/ArticleCard'
 import SearchBar from '@/components/ui/SearchBar'
 import Pagination from '@/components/ui/Pagination'
 import type { ArticleMetadata } from '@/lib/articles'
 
 interface ArticlesPageClientProps {
-  initialArticles: ArticleMetadata[]
-  categories: Array<{ id: string; name: string; color: string; count: number }>
-  initialQuery?: string
+  articles: ArticleMetadata[]
+  totalPages: number
+  categories: Array<{ id: string; slug: string; name: string; count: number }>
 }
 
 export default function ArticlesPageClient({
-  initialArticles,
+  articles,
+  totalPages,
   categories,
-  initialQuery = '',
 }: ArticlesPageClientProps): React.JSX.Element {
-  const [selectedCategory, setSelectedCategory] = useState('all')
-  const [searchQuery, setSearchQuery] = useState(initialQuery)
-  const [currentPage, setCurrentPage] = useState(1)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
-  // 記事フィルタリング（業界研究とFANZA動画を除外）
-  const filteredArticles = initialArticles.filter(article => {
-    const matchesCategory =
-      selectedCategory === 'all' ||
-      (selectedCategory === 'fuzoku' && article.category === '風俗体験談') ||
-      (selectedCategory === 'fanzavr' && article.category === 'FANZA_VRレビュー')
+  const currentPage = parseInt(searchParams.get('page') || '1', 10)
+  const selectedCategory = searchParams.get('category') || 'all'
+  const searchQuery = searchParams.get('q') || ''
 
-    const matchesSearch =
-      !searchQuery ||
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.tags.some(tag =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+  const createQueryString = (params: Record<string, string | number | null>) => {
+    const newSearchParams = new URLSearchParams(searchParams.toString())
+    for (const [key, value] of Object.entries(params)) {
+      if (value === null || value === '') {
+        newSearchParams.delete(key)
+      } else {
+        newSearchParams.set(key, String(value))
+      }
+    }
+    return newSearchParams.toString()
+  }
 
-    return matchesCategory && matchesSearch
-  })
-
-  const articlesPerPage = 6
-  const totalPages = Math.ceil(filteredArticles.length / articlesPerPage)
-  const startIndex = (currentPage - 1) * articlesPerPage
-  const displayedArticles = filteredArticles.slice(
-    startIndex,
-    startIndex + articlesPerPage
-  )
-
-  const handleCategoryChange = (categoryId: string): void => {
-    setSelectedCategory(categoryId)
-    setCurrentPage(1)
+  const handleCategoryChange = (categorySlug: string): void => {
+    router.push(`${pathname}?${createQueryString({ category: categorySlug, page: 1 })}`)
   }
 
   const handleSearch = (query: string): void => {
-    setSearchQuery(query)
-    setCurrentPage(1)
+    router.push(`${pathname}?${createQueryString({ q: query, page: 1 })}`)
   }
 
   const handlePageChange = (page: number): void => {
-    setCurrentPage(page)
+    router.push(`${pathname}?${createQueryString({ page })}`)
   }
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       <div className="container mx-auto px-4 py-8">
-        {/* ヘッダーセクション */}
         <div className="mb-8">
-          {/* 検索ボックス */}
           <div className="max-w-2xl mb-6">
             <SearchBar
               placeholder="記事を検索..."
               onSearch={handleSearch}
               className="w-full"
-              realtime={false}
+              initialValue={searchQuery}
             />
           </div>
 
@@ -89,7 +75,6 @@ export default function ArticlesPageClient({
             研究所の最新記事をお楽しみください
           </p>
 
-          {/* 研究分野トグルボタン */}
           <div className="content-card">
             <h3
               className="text-sm font-semibold mb-3"
@@ -101,19 +86,19 @@ export default function ArticlesPageClient({
               {categories.map(category => (
                 <button
                   key={category.id}
-                  onClick={() => handleCategoryChange(category.id)}
+                  onClick={() => handleCategoryChange(category.slug)}
                   className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
                   style={{
                     background:
-                      selectedCategory === category.id
+                      selectedCategory === category.slug
                         ? 'var(--primary)'
                         : 'var(--surface-elevated)',
                     color:
-                      selectedCategory === category.id
+                      selectedCategory === category.slug
                         ? 'white'
                         : 'var(--text-primary)',
                     border:
-                      selectedCategory === category.id
+                      selectedCategory === category.slug
                         ? 'none'
                         : '1px solid var(--border)',
                   }}
@@ -125,30 +110,10 @@ export default function ArticlesPageClient({
           </div>
         </div>
 
-        {/* 統計情報 */}
-        <div className="content-card mb-8">
-          <div className="flex justify-between items-center">
-            <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-              {filteredArticles.length} 件の記事が見つかりました
-              {searchQuery && (
-                <span className="ml-2" style={{ color: 'var(--primary)' }}>
-                  「{searchQuery}」で検索
-                </span>
-              )}
-            </div>
-            <div className="text-sm" style={{ color: 'var(--text-muted)' }}>
-              {startIndex + 1} -{' '}
-              {Math.min(startIndex + articlesPerPage, filteredArticles.length)}{' '}
-              件目を表示
-            </div>
-          </div>
-        </div>
-
-        {/* 記事一覧 */}
         <div className="mb-8">
-          {displayedArticles.length > 0 ? (
+          {articles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {displayedArticles.map(article => (
+              {articles.map(article => (
                 <ArticleCard
                   key={article.id}
                   title={article.title}
@@ -175,7 +140,6 @@ export default function ArticlesPageClient({
           )}
         </div>
 
-        {/* ページネーション */}
         {totalPages > 1 && (
           <div className="flex justify-center">
             <Pagination

@@ -1,13 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { CalendarIcon, TagIcon } from '@heroicons/react/24/outline'
-import {
-  getLatestArticles,
-  getArchivedArticlesData,
-  getAllTagsWithCounts,
-  getAllArticleMetadata,
-} from '@/lib/articles-server'
-import SidebarArchiveList from './SidebarArchiveList'
 import SidebarTagList from './SidebarTagList'
 import SidebarSearch from './SidebarSearch'
 
@@ -15,20 +8,63 @@ interface SidebarProps {
   className?: string
 }
 
+async function getRecentArticles() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';
+  try {
+    const res = await fetch(`${apiUrl}/api/articles?pageSize=5`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.articles || [];
+  } catch (error) {
+    console.error('Error fetching recent articles:', error);
+    return [];
+  }
+}
+
+async function getTags() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';
+  try {
+    const res = await fetch(`${apiUrl}/api/tags`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return res.json();
+  } catch (error) {
+    console.error('Error fetching tags:', error);
+    return [];
+  }
+}
+
+async function getAllArticles() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';
+  try {
+    const res = await fetch(`${apiUrl}/api/articles?pageSize=999`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.articles || [];
+  } catch (error) {
+    console.error('Error fetching all articles:', error);
+    return [];
+  }
+}
+
+async function getCategories() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';
+  try {
+    const res = await fetch(`${apiUrl}/api/categories`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return res.json();
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+}
+
 export default async function SidebarStatic({
   className = '',
 }: SidebarProps): Promise<React.JSX.Element> {
-  // 静的データを使用
-  const recentPosts = await getLatestArticles(5)
-  const archivedData = getArchivedArticlesData()
-  const allTags = getAllTagsWithCounts()
-  const allArticles = getAllArticleMetadata()
-
-  const categories = [
-    { name: '風俗体験談', slug: 'fuzoku', count: 2 },
-    { name: 'FANZA動画レビュー', slug: 'fanza', count: 2 },
-    { name: 'FANZA_VRレビュー', slug: 'fanzavr', count: 1 },
-  ]
+  const recentPosts = await getRecentArticles()
+  const allTags = await getTags()
+  const allArticles = await getAllArticles()
+  const categories = await getCategories()
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -145,17 +181,6 @@ export default async function SidebarStatic({
             </Link>
           ))}
         </div>
-      </div>
-
-      {/* 記事アーカイブ */}
-      <div className="content-card">
-        <h3
-          className="text-lg font-semibold mb-4"
-          style={{ color: 'var(--text-primary)' }}
-        >
-          記事アーカイブ
-        </h3>
-        <SidebarArchiveList archivedData={archivedData} />
       </div>
 
       {/* タグ一覧 */}

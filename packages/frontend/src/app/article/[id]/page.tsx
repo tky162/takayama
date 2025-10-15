@@ -1,84 +1,64 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { CalendarIcon, ClockIcon, TagIcon } from '@heroicons/react/24/outline'
-import {
-  getAllArticleMetadata,
-  getArticleBySlug,
-  getRelatedArticles,
-} from '@/lib/articles-server'
+import { CalendarIcon, TagIcon } from '@heroicons/react/24/outline'
+import { renderMarkdown } from '@/lib/markdown'
 import MarkdownRenderer from '@/components/MarkdownRenderer'
 import TableOfContents from '@/components/TableOfContents'
 import ViewTracker from '@/components/ViewTracker'
 import ScrollToTopButton from '@/components/ui/ScrollToTopButton'
+import type { ArticleMetadata } from '@/lib/articles'
 
 interface PageProps {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }
 
-export const dynamicParams = false
+// Using dynamic rendering until generateStaticParams is updated
+export const dynamic = 'force-dynamic'
+export const revalidate = 60 // Revalidate every 60 seconds
 
-export async function generateStaticParams() {
-  const articles = getAllArticleMetadata()
-
-  return articles.map((article) => ({
-    id: article.slug,
-  }))
+async function getArticle(slug: string) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788'
+  try {
+    const res = await fetch(`${apiUrl}/api/articles/${slug}`)
+    if (!res.ok) {
+      console.error(`Failed to fetch article: ${res.status} ${res.statusText}`)
+      return null
+    }
+    return res.json()
+  } catch (error) {
+    console.error('Error fetching article:', error)
+    return null
+  }
 }
 
 export default async function ArticlePage({
   params,
 }: PageProps): Promise<React.JSX.Element> {
-  const { id } = await params
+  const { id } = params
 
-  const dbArticle = await getArticleBySlug(id)
+  const article = await getArticle(id)
 
-  if (!dbArticle) {
+  if (!article) {
     notFound()
   }
 
-  const article = dbArticle
-  const tocHeadings = article.headings ?? []
+  const { html: articleContentHtml, headings: tocHeadings } = renderMarkdown(
+    article.content || ''
+  )
+
   const heroImage =
     article.thumbnail ||
     'https://pub-64fb0bfdf1794163b59576eb362601e9.r2.dev/ogp.jpg'
 
-  // 関連記事を取得
-  const relatedDbArticles = await getRelatedArticles(dbArticle, 3)
-  const relatedArticles = relatedDbArticles
+  // TODO: Re-implement related articles with a new API endpoint
+  const relatedArticles: ArticleMetadata[] = []
 
-  const getCategoryStyle = (category: string): React.CSSProperties => {
-    switch (category) {
-      case '風俗体験談':
-        return {
-          background: 'rgba(239, 68, 68, 0.1)',
-          color: '#ef4444',
-          border: '1px solid rgba(239, 68, 68, 0.2)',
-        }
-      case 'FANZA動画':
-      case 'FANZA動画レビュー':
-        return {
-          background: 'rgba(139, 92, 246, 0.1)',
-          color: '#8b5cf6',
-          border: '1px solid rgba(139, 92, 246, 0.2)',
-        }
-      case 'FANZA_VRレビュー':
-        return {
-          background: 'rgba(59, 130, 246, 0.1)',
-          color: '#3b82f6',
-          border: '1px solid rgba(59, 130, 246, 0.2)',
-        }
-      default:
-        return {
-          background: 'rgba(115, 115, 115, 0.1)',
-          color: '#737373',
-          border: '1px solid rgba(115, 115, 115, 0.2)',
-        }
-    }
-  }
-
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('ja-JP', {
+  const formatDate = (dateValue: number | string): string => {
+    if (!dateValue) return ''
+    // DB returns unix timestamp in seconds, convert to milliseconds
+    const date = new Date(Number(dateValue) * 1000)
+    return date.toLocaleDateString('ja-JP', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -92,7 +72,6 @@ export default async function ArticlePage({
       <ViewTracker slug={id} apiUrl={apiUrl} />
       <ScrollToTopButton />
       <div className="container mx-auto px-0 sm:px-4 py-4">
-        {/* パンくずリスト */}
         <nav className="mb-4 sm:mb-8 px-2 sm:px-0">
           <ol
             className="flex items-center space-x-2 text-sm"
@@ -122,12 +101,9 @@ export default async function ArticlePage({
           </ol>
         </nav>
 
-        {/* メインコンテンツレイアウト */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           <div className="lg:col-span-9 space-y-4">
-            {/* 記事メイン */}
             <article className="rounded-lg overflow-hidden content-card-elevated">
-              {/* 記事ヘッダー */}
               <div
                 className="px-2 py-4 sm:p-8"
                 style={{ borderBottom: '1px solid var(--border)' }}
@@ -152,22 +128,19 @@ export default async function ArticlePage({
                 )}
               </div>
 
-              {/* 記事本文 */}
               <div className="px-2 py-4 sm:p-8 space-y-4">
                 {tocHeadings.length > 0 && (
                   <div className="content-card lg:hidden">
                     <TableOfContents headings={tocHeadings} />
                   </div>
                 )}
-                <MarkdownRenderer html={article.content || ''} />
+                <MarkdownRenderer html={articleContentHtml} />
               </div>
 
-              {/* 記事メタ情報 */}
               <div
                 className="px-2 py-4 sm:p-8"
                 style={{ borderTop: '1px solid var(--border)' }}
               >
-                {/* 研究概要 */}
                 <div
                   className="rounded-lg p-4 mb-6"
                   style={{
@@ -183,7 +156,6 @@ export default async function ArticlePage({
                   </p>
                 </div>
 
-                {/* メタ情報 */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="text-center p-3 rounded-lg content-card">
                     <CalendarIcon
@@ -228,7 +200,6 @@ export default async function ArticlePage({
                   </div>
                 </div>
 
-                {/* 研究タグ */}
                 <div
                   style={{
                     borderTop: '1px solid var(--border)',
@@ -242,10 +213,10 @@ export default async function ArticlePage({
                     研究キーワード:
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {article.tags.map(tag => (
+                    {article.tags.map((tag: any) => (
                       <Link
-                        key={tag}
-                        href={`/tags/${tag}`}
+                        key={tag.slug}
+                        href={`/tags/${tag.slug}`}
                         className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors hover:opacity-80"
                         style={{
                           background: 'rgba(59, 130, 246, 0.1)',
@@ -254,14 +225,13 @@ export default async function ArticlePage({
                         }}
                       >
                         <TagIcon className="h-3 w-3 mr-1" />
-                        {tag}
+                        {tag.name}
                       </Link>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* 記事フッター */}
               <div
                 className="px-2 py-4 sm:p-8"
                 style={{
@@ -269,7 +239,6 @@ export default async function ArticlePage({
                   background: 'var(--surface)',
                 }}
               >
-                {/* 研究所フッター */}
                 <div className="content-card p-6 mb-6">
                   <div className="flex items-center mb-4">
                     <div
@@ -370,7 +339,6 @@ export default async function ArticlePage({
               </div>
             </article>
 
-            {/* 関連記事 */}
             {relatedArticles.length > 0 && (
               <div>
                 <h2
@@ -380,50 +348,12 @@ export default async function ArticlePage({
                   関連記事
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {relatedArticles.map(relatedArticle => (
-                    <Link
-                      key={relatedArticle.id}
-                      href={`/article/${relatedArticle.slug}`}
-                      className="content-card hover:opacity-80 transition-opacity duration-300 overflow-hidden"
-                    >
-                      <div className="p-6">
-                        <span
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mb-3"
-                          style={getCategoryStyle(relatedArticle.category)}
-                        >
-                          {relatedArticle.category}
-                        </span>
-                        <h3
-                          className="text-lg font-semibold mb-2 line-clamp-2"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {relatedArticle.title}
-                        </h3>
-                        <p
-                          className="text-sm mb-3 line-clamp-2"
-                          style={{ color: 'var(--text-secondary)' }}
-                        >
-                          {relatedArticle.excerpt}
-                        </p>
-                        <div
-                          className="flex items-center text-xs"
-                          style={{ color: 'var(--text-muted)' }}
-                        >
-                          <CalendarIcon className="h-3 w-3 mr-1" />
-                          <span>{formatDate(relatedArticle.publishedAt)}</span>
-                          <span className="mx-2">•</span>
-                          <ClockIcon className="h-3 w-3 mr-1" />
-                          <span>{relatedArticle.readTime}</span>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
+                  {/* Related articles will be implemented later */}
                 </div>
               </div>
             )}
           </div>
 
-          {/* 目次エリア（右カラム） */}
           <div className="hidden lg:block lg:col-span-3">
             {tocHeadings.length > 0 && (
               <div className="content-card sticky top-4">

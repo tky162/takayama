@@ -53,13 +53,25 @@ const config: Config = {
         sans: ['var(--font-geist-sans)', 'ui-sans-serif', 'system-ui'],
         mono: ['var(--font-geist-mono)', 'ui-monospace', 'SFMono-Regular'],
       },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
       animation: {
         'fade-in': 'fade-in 0.5s ease-in-out',
         'slide-up': 'slide-up 0.3s ease-out',
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 }
 
 export default config
