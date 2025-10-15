@@ -21,7 +21,7 @@ export default function MobileSidebar({
       {/* ハンバーガーアイコン */}
       <button
         onClick={toggleSidebar}
-        className="p-2 rounded-lg transition-colors fixed top-4 right-4 z-50"
+        className="p-2 rounded-lg transition-colors fixed top-4 left-4 z-50"
         style={{
           background: 'var(--surface-elevated)',
           color: 'var(--text-primary)',

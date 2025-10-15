@@ -28,7 +28,7 @@ export default function ArticlesPageClient({
       selectedCategory === 'all' ||
       (selectedCategory === 'fuzoku' && article.category === '風俗体験談') ||
       (selectedCategory === 'fanza' && article.category === 'FANZA動画') ||
-      (selectedCategory === 'research' && article.category === '業界研究')
+      (selectedCategory === 'fanzavr' && article.category === 'FANZA_VRレビュー')
 
     const matchesSearch =
       !searchQuery ||

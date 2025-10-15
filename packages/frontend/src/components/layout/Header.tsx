@@ -6,7 +6,6 @@ export default function Header(): React.JSX.Element {
   const navigation = [
     { name: '風俗体験談', href: '/fuzoku' },
     { name: 'FANZA動画', href: '/fanza' },
-    { name: '業界研究', href: '/research' },
     { name: '研究所について', href: '/about' },
     { name: 'お問い合わせ', href: '/contact' },
   ]

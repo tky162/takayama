@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
 interface SearchBarProps {
@@ -8,6 +8,8 @@ interface SearchBarProps {
   onSearch: (query: string) => void
   className?: string
   autoFocus?: boolean
+  realtime?: boolean
+  debounceMs?: number
 }
 
 export default function SearchBar({
@@ -15,13 +17,28 @@ export default function SearchBar({
   onSearch,
   className = '',
   autoFocus = false,
+  realtime = true,
+  debounceMs = 300,
 }: SearchBarProps): React.JSX.Element {
   const [query, setQuery] = useState('')
   const [isFocused, setIsFocused] = useState(false)
 
+  // リアルタイム検索のデバウンス処理
+  useEffect(() => {
+    if (!realtime) return
+
+    const timer = setTimeout(() => {
+      onSearch(query.trim())
+    }, debounceMs)
+
+    return () => clearTimeout(timer)
+  }, [query, realtime, debounceMs, onSearch])
+
   const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault()
-    onSearch(query.trim())
+    if (!realtime) {
+      onSearch(query.trim())
+    }
   }
 
   const handleClear = (): void => {

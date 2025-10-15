@@ -47,12 +47,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
           border: '1px solid rgba(239, 68, 68, 0.2)',
         }
       case 'FANZA動画':
+      case 'FANZA動画レビュー':
         return {
           background: 'rgba(139, 92, 246, 0.1)',
           color: '#8b5cf6',
           border: '1px solid rgba(139, 92, 246, 0.2)',
         }
-      case '業界研究':
+      case 'FANZA_VRレビュー':
         return {
           background: 'rgba(59, 130, 246, 0.1)',
           color: '#3b82f6',

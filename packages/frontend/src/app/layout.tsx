@@ -45,8 +45,8 @@ export default function RootLayout({
               <SidebarStatic />
             </MobileSidebar>
 
-            <div className="max-w-7xl mx-auto px-4 py-8">
-              <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-8">
+            <div className="max-w-7xl mx-auto px-0 sm:px-4 py-4">
+              <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-4">
                 <aside className="hidden lg:block lg:sticky lg:top-4 self-start">
                   <SidebarStatic />
                 </aside>

@@ -317,7 +317,6 @@ export function getArticlesByCategory(categorySlug: string): ArticleMetadata[] {
   const categorySlugToNameMap: Record<string, string> = {
     fuzoku: '風俗体験談',
     fanza: 'FANZA動画レビュー',
-    research: '業界研究',
     fanzavr: 'FANZA_VRレビュー',
   }
 

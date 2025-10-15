@@ -8,6 +8,7 @@ import {
 } from '@/lib/articles-server'
 import SidebarArchiveList from './SidebarArchiveList'
 import ClientSearchBarWrapper from './ClientSearchBarWrapper'
+import SidebarTagList from './SidebarTagList'
 
 interface SidebarProps {
   className?: string
@@ -24,12 +25,11 @@ export default async function SidebarStatic({
   const categories = [
     { name: '風俗体験談', slug: 'fuzoku', count: 2 },
     { name: 'FANZA動画レビュー', slug: 'fanza', count: 2 },
-    { name: '業界研究', slug: 'research', count: 1 },
     { name: 'FANZA_VRレビュー', slug: 'fanzavr', count: 1 },
   ]
 
   return (
-    <div className={`space-y-8 ${className}`}>
+    <div className={`space-y-4 ${className}`}>
       {/* ブランドバナー */}
       <Link
         href="/"
@@ -157,31 +157,7 @@ export default async function SidebarStatic({
       </div>
 
       {/* タグ一覧 */}
-      <div className="content-card">
-        <h3
-          className="text-lg font-semibold mb-4"
-          style={{ color: 'var(--text-primary)' }}
-        >
-          タグ一覧
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {allTags.map(tag => (
-            <Link
-              key={tag.name}
-              href={`/tags/${tag.slug}`}
-              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors hover:opacity-80"
-              style={{
-                background: 'rgba(59, 130, 246, 0.1)',
-                color: '#3b82f6',
-                border: '1px solid rgba(59, 130, 246, 0.2)',
-              }}
-            >
-              <TagIcon className="h-3 w-3 mr-1" />
-              {tag.name} ({tag.count})
-            </Link>
-          ))}
-        </div>
-      </div>
+      <SidebarTagList allTags={allTags} />
 
       {/* 研究所からのお知らせ */}
       <div className="content-card">

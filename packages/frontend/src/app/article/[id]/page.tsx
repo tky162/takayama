@@ -9,6 +9,7 @@ import {
 } from '@/lib/articles-server'
 import MarkdownRenderer from '@/components/MarkdownRenderer'
 import TableOfContents from '@/components/TableOfContents'
+import ViewTracker from '@/components/ViewTracker'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -54,12 +55,13 @@ export default async function ArticlePage({
           border: '1px solid rgba(239, 68, 68, 0.2)',
         }
       case 'FANZA動画':
+      case 'FANZA動画レビュー':
         return {
           background: 'rgba(139, 92, 246, 0.1)',
           color: '#8b5cf6',
           border: '1px solid rgba(139, 92, 246, 0.2)',
         }
-      case '業界研究':
+      case 'FANZA_VRレビュー':
         return {
           background: 'rgba(59, 130, 246, 0.1)',
           color: '#3b82f6',
@@ -82,11 +84,14 @@ export default async function ArticlePage({
     })
   }
 
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://takayama-api.masayuki-nakayama-8fa.workers.dev'
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
-      <div className="container mx-auto px-4 py-8">
+      <ViewTracker slug={id} apiUrl={apiUrl} />
+      <div className="container mx-auto px-0 sm:px-4 py-4">
         {/* パンくずリスト */}
-        <nav className="mb-8">
+        <nav className="mb-4 sm:mb-8 px-4 sm:px-0">
           <ol
             className="flex items-center space-x-2 text-sm"
             style={{ color: 'var(--text-secondary)' }}
@@ -116,13 +121,13 @@ export default async function ArticlePage({
         </nav>
 
         {/* メインコンテンツレイアウト */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-9 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div className="lg:col-span-9 space-y-4">
             {/* 記事メイン */}
             <article className="rounded-lg overflow-hidden content-card-elevated">
               {/* 記事ヘッダー */}
               <div
-                className="p-8"
+                className="p-4 sm:p-8"
                 style={{ borderBottom: '1px solid var(--border)' }}
               >
                 <h1
@@ -146,7 +151,7 @@ export default async function ArticlePage({
               </div>
 
               {/* 記事本文 */}
-              <div className="p-8 space-y-8">
+              <div className="p-4 sm:p-8 space-y-4">
                 {tocHeadings.length > 0 && (
                   <div className="content-card lg:hidden">
                     <TableOfContents headings={tocHeadings} />
@@ -157,7 +162,7 @@ export default async function ArticlePage({
 
               {/* 記事メタ情報 */}
               <div
-                className="p-8"
+                className="p-4 sm:p-8"
                 style={{ borderTop: '1px solid var(--border)' }}
               >
                 {/* 研究概要 */}
@@ -255,7 +260,7 @@ export default async function ArticlePage({
 
               {/* 記事フッター */}
               <div
-                className="p-8"
+                className="p-4 sm:p-8"
                 style={{
                   borderTop: '1px solid var(--border)',
                   background: 'var(--surface)',
