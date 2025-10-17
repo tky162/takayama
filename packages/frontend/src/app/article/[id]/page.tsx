@@ -10,14 +10,11 @@ import ScrollToTopButton from '@/components/ui/ScrollToTopButton'
 import type { ArticleMetadata } from '@/lib/articles'
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 60; // Revalidate every 60 seconds
 
 interface PageProps {
   params: { id: string }
 }
-
-// Using dynamic rendering until generateStaticParams is updated
-export const dynamic = 'force-dynamic'
-export const revalidate = 60 // Revalidate every 60 seconds
 
 async function getArticle(slug: string) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788'
