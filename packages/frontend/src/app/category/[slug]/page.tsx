@@ -2,19 +2,7 @@ import { notFound } from 'next/navigation'
 import CategoryPageClient from '@/components/pages/CategoryPageClient'
 import { Suspense } from 'react'
 
-export async function generateStaticParams() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';
-  try {
-    const res = await fetch(`${apiUrl}/api/categories`);
-    const categories = await res.json();
-    return categories.map((category: { slug: string }) => ({
-      slug: category.slug,
-    }));
-  } catch (error) {
-    console.error('Error generating static params for categories:', error);
-    return [];
-  }
-}
+export const dynamic = 'force-dynamic';
 
 interface CategoryInfo {
   slug: string

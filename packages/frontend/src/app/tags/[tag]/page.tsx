@@ -2,19 +2,7 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import TagPageClient from '@/components/pages/TagPageClient'
 
-export async function generateStaticParams() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';
-  try {
-    const res = await fetch(`${apiUrl}/api/tags`);
-    const tags = await res.json();
-    return tags.map((tag: { slug: string }) => ({
-      tag: tag.slug,
-    }));
-  } catch (error) {
-    console.error('Error generating static params for tags:', error);
-    return [];
-  }
-}
+export const dynamic = 'force-dynamic';
 
 async function getTag(slug: string) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';

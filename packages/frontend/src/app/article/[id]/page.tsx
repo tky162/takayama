@@ -9,6 +9,8 @@ import ViewTracker from '@/components/ViewTracker'
 import ScrollToTopButton from '@/components/ui/ScrollToTopButton'
 import type { ArticleMetadata } from '@/lib/articles'
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: { id: string }
 }

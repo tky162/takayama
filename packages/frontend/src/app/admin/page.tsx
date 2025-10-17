@@ -1,5 +1,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
+export const dynamic = 'force-dynamic';
+
 async function getStats() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';
   try {

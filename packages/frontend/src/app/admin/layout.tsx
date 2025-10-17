@@ -1,6 +1,8 @@
 import Link from "next/link";
 import AdminAuthWrapper from "./AdminAuthWrapper";
 
+export const dynamic = 'force-dynamic';
+
 export default function AdminLayout({
   children,
 }: {

@@ -2,6 +2,8 @@ import Link from 'next/link'
 import Footer from '@/components/layout/Footer'
 import ArticleCard from '@/components/ui/ArticleCard'
 
+export const dynamic = 'force-dynamic';
+
 async function fetchData(endpoint: string, options: RequestInit = {}) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8788';
   try {
