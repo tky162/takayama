@@ -1,3 +1,4 @@
 name = "takayama-frontend"
 pages_build_output_dir = ".open-next/server-functions/default"
 compatibility_date = "2024-09-27"
+compatibility_flags = ["nodejs_compat"]
