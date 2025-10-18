@@ -15,6 +15,8 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
+export const runtime = 'edge'
+
 export const metadata: Metadata = {
   title: '高山まさあきの夜遊び研究所',
   description: '風俗体験談、FANZA動画レビュー、VRコンテンツの徹底分析 - 実体験に基づく信頼できる情報をお届けします',
