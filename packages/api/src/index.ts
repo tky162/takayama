@@ -504,4 +504,19 @@ async function digest(ip: string, slug: string, timestamp: number): Promise<stri
   return [...new Uint8Array(hash)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
+// Root handler
+app.get("/", (c) => {
+  return c.json({
+    name: "Takayama API",
+    version: "1.0.0",
+    endpoints: {
+      health: "/api/health",
+      articles: "/api/articles",
+      categories: "/api/categories",
+      tags: "/api/tags",
+      stats: "/api/stats",
+    },
+  });
+});
+
 export default app;
