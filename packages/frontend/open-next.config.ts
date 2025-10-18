@@ -7,6 +7,10 @@ const config: OpenNextConfig = {
       converter: 'edge',
     },
   },
+  dangerous: {
+    disableIncrementalCache: true,
+    disableTagCache: true,
+  },
 }
 
 export default config
