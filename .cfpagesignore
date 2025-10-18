@@ -1,0 +1,3 @@
+# Ignore root wrangler.toml (for Workers API)
+# Use packages/frontend/wrangler.toml for Pages configuration
+wrangler.toml
