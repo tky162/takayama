@@ -225,10 +225,10 @@ admin.put('/articles/:slug', async (c) => {
     }
 });
 
-app.route('/api', admin);
-// --- End Admin Routes ---
-
 app.use("*", cors());
+
+app.route('/api/admin', admin);
+// --- End Admin Routes ---
 
 app.get("/api/health", (c) => c.json({ status: "ok" }));
 
